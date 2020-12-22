@@ -1,0 +1,84 @@
+public class SalesforceTrainingClass {
+	
+    //List
+    //List<Datatype> listName = new List<Datatype>();
+    //
+    //Set -- unique values.
+    //Set<Datatype> setName = new Set<Datatype>();
+    //
+    //Map
+    //<key, value> pair., the key can't be duplicated, and its acts as a set.
+    //value can be duplicated, and its acts like a List. because the different keys can have the same value.
+    //Map<Key, Value> mapName(valueByKey) = new Map<Key, Value>();
+    //
+    //declaration of mapname:
+    //key as index and value as Month name., then map name will be valueBykey.
+    Map<Integer, String> monthByIndex = new Map<Integer, String>();
+    
+    List<String> foodItems = new List<String>();
+    Set<String> houseItems = new Set<String>();
+    
+    public SalesforceTrainingClass(){
+        //how we add value into the map.
+        monthByIndex.put(1, 'JAN');
+        monthByIndex.put(2, 'FEB');
+        monthByIndex.put(4, 'APR');
+        monthByIndex.put(3, 'MAR');
+        System.debug('Get map ' + monthByIndex);
+        
+        foodItems.add('Parathe');
+        foodItems.add('Daal');
+        foodItems.add('Achar');
+        foodItems.add('Roti');
+        
+        System.debug('Get foodItems: ' + foodItems);
+        
+        houseItems.add('Door');
+        houseItems.add('Kbow');
+        houseItems.add('TV');
+        houseItems.add('Desk');
+        
+        System.debug('Get houseItems: ' + houseItems);
+    }
+    
+    public void getValueFromMap(){
+        //Get value from the Map, you need to pass the key value.
+        System.debug('Get map value whose key is 2: ' + monthByIndex.get(2));
+    }
+    
+    public void doLooponList(){
+        for(Integer i=0; i< foodItems.size(); i++){
+            System.debug('foodItem via normal LOOP: '+foodItems.get(i));
+        }
+        
+        //Salesforce Loop.
+        for(String foodItem :foodItems){
+            System.debug('foodItem via Salesforce LOOP:' + foodItem);
+        }
+        
+        //Salesforce Loop.
+        for(String houseItem :houseItems){
+            System.debug('houseItem via Salesforce LOOP:' + houseItem);
+        }
+    }
+    
+    public void doLoopOnMapKey(){
+        for(Integer monthIndex : monthByIndex.keySet()){
+            System.debug('monthIndex via monthByIndex Map Keys :' + monthIndex 
+                         + 'and Element: ' + monthByIndex.get(monthIndex));
+        }
+    }
+    
+    public void doLoopOnMapValues(){
+        for(String monthName : monthByIndex.values()){
+            System.debug('monthIndex via monthByIndex Map Keys :' + monthName);
+        }
+    }
+    
+    public void doRemoveMapValue(){
+        //pass Key tp remove element.
+        System.debug('Map Before remove :' + monthByIndex);
+        monthByIndex.remove(2);
+        System.debug('Map After remove :' + monthByIndex);
+    }
+}
