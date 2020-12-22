@@ -1,0 +1,101 @@
+public class SalesforceTraningClass {
+
+    //What is Sojects
+    /*
+     * Jave-> 
+     * public clas ABC{
+     * 	public String name;
+
+}
+    //ABC obj = new ABC();
+    //obj.name = 'Something'.
+    */
+    
+    public void insertAccountSobject(){
+        Account acc = new Account();
+        acc.Name = 'Created from Apex - 2';
+        acc.BillingCity = 'Varanasi';
+        acc.Phone = '1231231234';
+        acc.AnnualRevenue = 1234;
+        acc.suraj_kumar__Phase__c = 'BIDDING';//picklist have the same value as present in the picklist field.
+        INSERT acc;
+    }
+    
+    public void insertAccountSobjectDiff(){
+        Account acc = new Account(
+            Name = 'Created from Apex - Diff',
+            BillingCity = 'Varanasi',
+            Phone = '1231231234',
+            AnnualRevenue = 1234,
+            suraj_kumar__Phase__c = 'BIDDING'
+        );
+        INSERT acc;
+    }
+    
+    public void insertContactSobject(){
+        Contact cont = new Contact();
+        cont.FirstName = 'John - Account and custom lkp';
+        cont.LastName = 'Brown';
+        cont.Phone = '1231231234';
+        cont.Email = 'john@test.com';
+        //How to acttach lookup, Just add ID of the record to which it is related.
+        cont.AccountId = '0010I00002ViUI1QAN';
+        cont.suraj_kumar__Condidate__c = 'a0V280000009zJFEAY'; //RECORD ID.
+        INSERT cont;
+    }
+    
+    public void loopToInsertAccount(){
+        
+        //DON't Perform DML in Loop.
+        /*for(integer i=0; i<3
+; i++){
+            Account acc = new Account();
+            acc.Name = 'Created from from - ' + i;
+            acc.BillingCity = 'Varanasi';
+            acc.Phone = '1231231234';
+            acc.AnnualRevenue = 1234;
+            acc.suraj_kumar__Phase__c = 'BIDDING';
+			//DON't Perform DML in Loop.
+            INSERT acc;
+        }*/
+        
+        List<Account> accList = new List<Account>();
+        for(integer i=0; i<3
+; i++){
+            Account acc = new Account();
+            acc.Name = 'Created from List - ' + i;
+            acc.BillingCity = 'Varanasi';
+            acc.Phone = '1231231234';
+            acc.AnnualRevenue = 1234;
+            acc.suraj_kumar__Phase__c = 'BIDDING';
+            accList.add(acc);
+        }
+        //TODO: always check the List size before insert.
+        if(accList.size() > 0){
+            INSERT accList;
+        }
+    }
+    
+    public void loopToInsertAccountSmart(){
+        
+        List<Account> accList = new List<Account>();
+        for(integer i=0; i<3
+; i++){
+            accList.add(new Account(
+                Name = 'Created in loop - Diff ' + i,
+                BillingCity = 'Varanasi',
+                Phone = '1231231234',
+                AnnualRevenue = 1234,
+                suraj_kumar__Phase__c = 'BIDDING'
+            ));
+        }
+        if(accList.size() > 0){
+            INSERT accList;
+        }
+    }
+    
+    public void doSOQL(){
+        //SOQL always retunrs List<Sobject>.
+        List<Account> accList = [SELECT Id, Name from Account];
+    }
+}
