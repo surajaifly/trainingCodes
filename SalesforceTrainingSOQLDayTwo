@@ -1,0 +1,206 @@
+public class SalesforceTrainingSOQLDayTwo {
+	//Map<key, Value> testMap = new Map<key, Value>();
+	//Map, key --> Set and value -->List 
+	//
+	//key = Value , Representation.
+    public void getAccountRecords(){
+        List<Account> accList = new List<Account>();
+        accList = [SELECT id, Name, Phone, billingcity from Account];
+        
+        //Map<key, Value> testMap = new Map<key, Value>();
+        //Here is ID is a datatype.
+        Map<Id, Account> accountById = new Map<Id, Account>();
+        Map<String, String> accountPhoneByName = new Map<String, String>();
+        
+        for(Account acc: accList){
+            //accountById.put(acc.Name, acc.Phone);
+            //System.debug('@@## Single Map Value: ' + acc.Name + '== > ' + acc);
+            accountById.put(acc.Id, acc);
+            accountPhoneByName.put(acc.Name, acc.Phone);
+        }
+        
+        for(Id accId : accountById.keySet()){
+            System.debug('@@##' + accId + '==>' + accountById.get(accId));
+        }
+        for(String accName : accountPhoneByName.keySet()){
+            System.debug('@@##' + accName + '==>' + accountPhoneByName.get(accName));
+        }
+    }
+    
+    
+    
+    //Speacial case only for ID and Sobject.
+    public void getAccountByIdDirect(){
+        Map<Id, Account> accountById = new Map<Id, Account>([
+            SELECT id, Name, Phone, billingcity 
+            FROM Account
+        ]);
+        for(Id accId : accountById.keySet()){
+            System.debug('@@##' + accId + '==>' + accountById.get(accId));
+        }
+    }
+    
+    //Important - Inner Query.
+    //apply only Child recrods
+    public void getAccountandContactRecords(){
+        List<Account> accList = new List<Account>();
+        accList = [
+            SELECT id, Name, Phone, billingcity,
+            	(SELECT Id, Name, Email 
+                 FROM Contacts),
+            	(SELECT Id, Name
+                 FROM Opportunities)
+            FROM Account
+        ];
+        
+        for(Account acc: accList){
+            System.debug('@@## Account: ' + acc);
+            for(Contact cont: acc.Contacts){
+            	System.debug('@@## Contacts: ' + cont);
+        	}
+            for(Opportunity opp: acc.Opportunities){
+            	System.debug('@@## Opportunity: ' + opp);
+        	}
+        }
+    }
+    
+    public void getContactandCustomObjRecords(){
+        List<Contact> contactList = new List<Contact>();
+        contactList = [
+            SELECT id, Name, Phone, Email,
+            	(SELECT Id, Name, Last_Name__c 
+                 FROM Employee__r),
+                (SELECT Id, Name, Experience__c  
+                     FROM Applications__r)
+            FROM Contact
+        ];
+        for(Contact cont: contactList){
+            System.debug('@@## Contacts: ' + cont);
+            for(Employee__c employee: cont.Employee__r){
+                System.debug('@@## employee: ' + employee.Last_Name__c);
+            }
+            for(Applications__c application: cont.Applications__r){
+                System.debug('@@## application: ' + application.Name);
+            }
+        } 
+    }
+    
+    //When any Employee record create, and its last name found in any of the Account, then 
+    //Account Phone, will copy into its emergancy Contact number.
+    public void employeeRecordExample(){
+        List<Account> accList = new List<Account>();
+        accList = [SELECT id, Name, Phone, billingcity from Account];
+        Map<String, String> accountPhoneByName = new Map<String, String>();
+        
+        for(Account acc: accList){
+            accountPhoneByName.put(acc.Name, acc.Phone);
+        }
+        
+        Employee__c emp = new Employee__c(
+            Last_Name__c = 'Edge Communications',
+            Name = 'Testing EMP Records - via List'
+        );
+        
+        for(String accName: accountPhoneByName.keySet()){
+            if(emp.Last_Name__c == accName){
+                String accPhone = accountPhoneByName.get(accName);
+                emp.Emergency_Contact__c = accPhone;
+            }   
+        }
+        /*
+        for(Account acc: accList){
+            if(emp.Last_Name__c == acc.Name){
+                emp.Emergency_Contact__c = acc.Phone;
+            } 
+        }
+*/
+        INSERT emp;
+    }
+}
++++++++++++++++++++++++++++++++++++
+public class SalesforceTrainingSOQL {
+    //SOQL, is used for the getting the record from the salesforce database.
+    //SOQL retun type --> List of Sobject(Account, Contact, Customobject, anything);
+    
+    //How to get value from SOQL into List.
+    public void getAccountRecords(){
+        List<Account> accList = new List<Account>();
+        accList = [SELECT id, Name, Phone, billingcity from Account];
+        
+        for(Account acc: accList){
+            System.debug('@@##' + acc);
+        }
+    }
+    
+    public void doAccountUpdate(){
+        Account acc = new Account();
+        acc.Name = 'Burlington Textiles Corp of America';
+        acc.Phone = '4747471144';
+        acc.BillingCity = 'Varanasi(UP)';
+        acc.Id = '0015g000003Cz4VAAS';
+        UPDATE acc;
+    }
+    
+    public void doAccountUpdateviaSOQL(){
+        List<Account> accList = new List<Account>();
+        accList = [
+            SELECT Id 
+            FROM Account
+            WHERE Name = 'Burlington Textiles Corp of America'
+        ];
+        
+        for(Account acc: accList){
+            System.debug('Before: ' + acc);
+            acc.Phone = '4747473248';
+            acc.BillingCity = 'Ajmer - (RAJ)';
+            acc.Website = 'www.yahoo.com';
+            System.debug('After: ' + acc);
+        }
+        if(accList.size() > 0){
+            UPDATE accList;
+        }
+    }
+    
+    public void doAccountUpsert(){
+        Account acc = new Account();
+        acc.Name = 'Burlington Textiles Corp of America - upsert(via ID)';
+        acc.Phone = '4747471144';
+        acc.BillingCity = 'Varanasi - (UP)';
+        acc.Id = '0015g000002sMHbAAM';
+        UPSERT acc;
+    }
+    
+    public void doAccountDelete(){
+        Account acc = new Account();
+        acc.Id = '0015g000002sMHRAA2';
+        DELETE acc;
+    }
+    
+    public void doAccountDeleteViaSOQL(){
+        List<Account> accList = new List<Account>();
+        accList = [
+            SELECT Id 
+            FROM Account
+            WHERE Name = 'Burlington Textiles Corp of America - upsert(via ID)'
+            LIMIT 1
+        ];
+        
+        DELETE accList;
+    }
+    
+    public void doAccountUpdateviaSOQLSingleObj(){
+        List<Account> accList = new List<Account>();
+        accList = [
+            SELECT Id 
+            FROM Account
+            WHERE Name = 'Burlington Textiles Corp of America'
+        ];
+        if(accList.size() > 0){
+            Account singleAcc = accList.get(0);
+            singleAcc.Phone = '4747479999';
+            singleAcc.BillingCity = 'Vaishali - (RAJ)';
+            singleAcc.Website = 'www.yahoog.com';
+            UPDATE singleAcc;
+        }
+    }
+}
